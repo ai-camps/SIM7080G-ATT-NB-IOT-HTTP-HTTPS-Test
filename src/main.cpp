@@ -56,87 +56,6 @@ enum
 
 bool level = false;
 
-// retrieve the Power Saving Mode (PSM) timer value from the modem
-void getPsmTimer()
-{
-    modem.sendAT("+CPSMS?"); // Send AT command to query PSM settings
-
-    if (modem.waitResponse("+CPSMS:") != 1)
-    {
-        Serial.println("Failed to retrieve PSM timer");
-        return;
-    }
-
-    String response = modem.stream.readStringUntil('\r');
-    // Parse the response to extract PSM timer values (T3412, T3324)
-
-    Serial.print("PSM Timer values: ");
-    Serial.println(response);
-}
-
-/* Define the writeCaFiles function in this C++ code snippet takes four parameters: an integer index, a const char pointer filename, a const char pointer data, and a size_t variable length.
-The function is designed to write the provided data to a file with a specified name. */
-void writeCaFiles(int index, const char *filename, const char *data, size_t length)
-{
-    modem.sendAT("+CFSTERM");
-    modem.waitResponse();
-
-    modem.sendAT("+CFSINIT");
-    if (modem.waitResponse() != 1)
-    {
-        Serial.println("INITFS FAILED");
-        return;
-    }
-    // AT+CFSWFILE=<index>,<filename>,<mode>,<filesize>,<input time>
-    // <index>
-    //      Directory of AP filesystem:
-    //      0 "/custapp/" 1 "/fota/" 2 "/datatx/" 3 "/customer/"
-    // <mode>
-    //      0 If the file already existed, write the data at the beginning of the
-    //      file. 1 If the file already existed, add the data at the end o
-    // <file size>
-    //      File size should be less than 10240 bytes. <input time> Millisecond,
-    //      should send file during this period or you can’t send file when
-    //      timeout. The value should be less
-    // <input time> Millisecond, should send file during this period or you can’t
-    // send file when timeout. The value should be less than 10000 ms.
-
-    size_t payloadLength = length;
-    size_t totalSize = payloadLength;
-    size_t alreadyWrite = 0;
-
-    while (totalSize > 0)
-    {
-        size_t writeSize = totalSize > 10000 ? 10000 : totalSize;
-
-        modem.sendAT("+CFSWFILE=", index, ",", "\"", filename, "\"", ",", !(totalSize == payloadLength), ",", writeSize, ",", 10000);
-        modem.waitResponse(30000UL, "DOWNLOAD");
-    REWRITE:
-        modem.stream.write(data + alreadyWrite, writeSize);
-        if (modem.waitResponse(30000UL) == 1)
-        {
-            alreadyWrite += writeSize;
-            totalSize -= writeSize;
-            Serial.printf("Writing:%d overage:%d\n", writeSize, totalSize);
-        }
-        else
-        {
-            Serial.println("Write failed!");
-            delay(1000);
-            goto REWRITE;
-        }
-    }
-
-    Serial.println("Wirte done!!!");
-
-    modem.sendAT("+CFSTERM");
-    if (modem.waitResponse() != 1)
-    {
-        Serial.println("CFSTERM FAILED");
-        return;
-    }
-}
-
 /* Initialization modem */
 void setup()
 {
@@ -268,7 +187,8 @@ void setup()
     Serial.print("Network register info:");
     Serial.println(register_info[s]);
 
-    // Configure NB-IoT OneRate APN m2mNB16.com.attz
+    // Important ! To use AT&T NB-IOT network, you must correctly configure as below ATT NB-IoT OneRate data plan APN "m2mNB16.com.attz",
+    // Otherwise ATT will assign a general APN like "m2mglobal" which seems blocks 443,8883,8884 ports.
     Serial.println("Configuring APN...");
     modem.sendAT("+CGDCONT=1,\"IP\",\"m2mNB16.com.attz\"");
     modem.waitResponse();
@@ -421,7 +341,7 @@ void setup()
     Serial.println("Step 7 done !");
 
     /***********************************
-     * step 8 : Access HTTP Server at demo4570913.mockable.io
+     * step 8 : Access HTTP Server at demo4570913.mockable.io (this is a test server created by my account on mockable.io)
      ***********************************/
 
     Serial.println("............................................................................Step 11");
