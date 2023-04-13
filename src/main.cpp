@@ -344,7 +344,7 @@ void setup()
      * step 8 : Access HTTP Server at demo4570913.mockable.io (this is a test server created by my account on mockable.io)
      ***********************************/
 
-    Serial.println("............................................................................Step 11");
+    Serial.println("............................................................................Step 8");
     Serial.println("start to connect the HTTP server ");
 
     TinyGsmClient client(modem, 0);
@@ -397,11 +397,12 @@ void setup()
         client.stop();
     }
 
+    Serial.println("Step 8 done !");
     /***********************************
      * step 9 : Access HTTPS Server at demo4570913.mockable.io
      ***********************************/
 
-    Serial.println("............................................................................Step 12");
+    Serial.println("............................................................................Step 9");
     Serial.println("start to connect the HTTPS server ");
 
     const int HTTPS_Port = 443;
@@ -465,4 +466,6 @@ void loop()
             Serial1.write(Serial.read());
         }
     }
+
+    Serial.println("Step 9 done !");
 }
