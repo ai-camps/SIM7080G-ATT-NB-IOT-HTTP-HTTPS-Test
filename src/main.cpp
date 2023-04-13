@@ -451,6 +451,8 @@ void setup()
         Serial.println("CHARACTERS");
         secureClient.stop();
     }
+
+    Serial.println("Step 9 done !");
 }
 
 void loop()
@@ -466,6 +468,4 @@ void loop()
             Serial1.write(Serial.read());
         }
     }
-
-    Serial.println("Step 9 done !");
 }
