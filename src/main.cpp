@@ -151,8 +151,8 @@ void setup()
     Serial.println("............................................................................Step 4");
     Serial.println("start to set the network mode to NB-IOT ");
 
-    modem.setNetworkMode(2); // use automatic
-
+    modem.setNetworkMode(38); // 2 for Auto, 38 for LTE only
+    
     modem.setPreferredMode(MODEM_NB_IOT);
 
     uint8_t pre = modem.getPreferredMode();
@@ -168,6 +168,21 @@ void setup()
 
     Serial.println("............................................................................Step 5");
     Serial.println("Start to perform network registration, configure APN and ping 8.8.8.8");
+
+    modem.sendAT("+COPS=0,0,\"AT&T\",9");
+    modem.waitResponse();
+
+    modem.sendAT("+CBANDCFG=\"NB-IoT\",12");  // 4: 700MHz for T-mobile, 12: 850MHz for AT&T  
+    modem.waitResponse();
+
+    modem.sendAT("+CNBS=1");
+
+    // Important ! 
+    // To use AT&T NB-IOT network, you must correctly configure as below ATT NB-IoT OneRate data plan APN "m2mNB16.com.attz",
+    // Otherwise ATT will assign a general APN like "m2mglobal" which seems blocks 443,8883,8884 ports.
+    Serial.println("Configuring APN...");
+    modem.sendAT("+CGDCONT=1,\"IP\",\"m2mNB16.com.attz\"");
+    modem.waitResponse();
 
     RegStatus s;
     do
@@ -186,12 +201,6 @@ void setup()
     Serial.println();
     Serial.print("Network register info:");
     Serial.println(register_info[s]);
-
-    // Important ! To use AT&T NB-IOT network, you must correctly configure as below ATT NB-IoT OneRate data plan APN "m2mNB16.com.attz",
-    // Otherwise ATT will assign a general APN like "m2mglobal" which seems blocks 443,8883,8884 ports.
-    Serial.println("Configuring APN...");
-    modem.sendAT("+CGDCONT=1,\"IP\",\"m2mNB16.com.attz\"");
-    modem.waitResponse();
 
     modem.sendAT("+CGNAPN");
     if (modem.waitResponse(10000L) != 1)
