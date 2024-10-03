@@ -7,3 +7,4 @@ Important claim -
 - I have adapted and modified this code to suit my specific needs, but I want to acknowledge and give credit to the original authors Lewis He (lewishe@outlook.com) for his work. Thank Lewis He (lewishe@outlook.com) for providing these helpful examples.
 - Please note that my use of this code falls under MIT license or terms of use of the original source,
 - I am not responsible for any damages or issues that may arise from the use of this code.
+# SIM7080G-1NCE-NB-IOT-HTTP-HTTPS-Test
